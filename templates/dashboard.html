@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guided Imagery</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <img src="/static/dashboard.jpg" alt="Dashboard Photo" class="login-photo">
+        <h1>Generate Guided Imagery</h1>
+        <label for="situation">Please describe your situation to create the perfect imagination:</label>
+        <textarea id="situation" rows="4" cols="50"></textarea>
+        <button onclick="generateImagery()">Generate</button>
+        <div id="loading" style="display: none;">
+            <img src="/static/loading.gif" alt="Loading...">
+        </div>
+        <div id="result" style="display: none;">
+            <p id="generatedText"></p>
+            <a id="downloadLink" href="#" download>Download File</a>
+        </div>
+    </div>
+
+    <script>
+        function generateImagery() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result').style.display = 'none';
+
+            fetch('/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ prompt: document.getElementById('situation').value })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('result').style.display = 'block';
+                document.getElementById('generatedText').innerText = data.text;
+                const downloadLink = document.getElementById('downloadLink');
+                downloadLink.href = `/download/${data.file}`;
+                downloadLink.style.display = 'block';
+            });
+        }
+    </script>
+</body>
+</html>
