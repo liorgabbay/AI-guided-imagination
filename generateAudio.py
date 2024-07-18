@@ -6,7 +6,7 @@ from google.cloud import texttospeech
 from pydub import AudioSegment
 
 # Set Google application credentials for Text-to-Speech API access
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "third-shade-425412-m6-a8400f8dd8be.json"
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "third-shade-425412-m6-aa7deb7f302e.json"
 
 
 class TextToSpeech:
@@ -52,12 +52,7 @@ class TextToSpeech:
         audio_stream = io.BytesIO(response.audio_content)
         audio = AudioSegment.from_file(audio_stream, format="wav")
 
-        random_number = random.randint(1000, 9999)
         # Save the audio to a file
-        filename = f"imaginations/output_{random_number}.wav"
-        with open(filename, 'wb') as out:
-            out.write(response.audio_content)
-        print(f'Audio content written to file "{filename}"')
         return audio
 
 
