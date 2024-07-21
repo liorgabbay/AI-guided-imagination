@@ -29,13 +29,8 @@ The platform utilizes the Meta-Llama-3-8B-Instruct model to generate personalize
     git clone https://github.com/liorgabbay/AI-guided-imagination.git
     cd ai-guided-imagery
     ```
-
-2. Install the required dependencies:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-3. Run the application:
+   
+2. Run the application:
     ```bash
     python app.py
     ```
