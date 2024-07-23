@@ -1,10 +1,10 @@
 import os
 import io
-import re
-import random
 from google.cloud import texttospeech
 from pydub import AudioSegment
-
+import re
+from pydub.generators import Sine
+from pydub.effects import normalize
 # Set Google application credentials for Text-to-Speech API access
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "third-shade-425412-m6-aa7deb7f302e.json"
 
@@ -35,14 +35,14 @@ class TextToSpeech:
         synthesis_input = texttospeech.SynthesisInput(text=self.text)
         voice = texttospeech.VoiceSelectionParams(
             language_code="en-US",
-            name="en-US-Wavenet-C",  # Using a specific Wavenet female voice
-            ssml_gender=texttospeech.SsmlVoiceGender.FEMALE
+            name="en-US-Casual-K",  # Using a specific Wavenet female voice
+            ssml_gender=texttospeech.SsmlVoiceGender.MALE
         )
         audio_config = texttospeech.AudioConfig(
             audio_encoding=texttospeech.AudioEncoding.LINEAR16,  # WAV format
-            pitch=-3.0,  # Lower pitch for calmness
-            speaking_rate=0.85,  # Slower speaking rate for calmness
-            volume_gain_db=1.0  # Slight volume gain to ensure clarity
+            pitch=-2.0,  # Lower pitch for calmness
+            speaking_rate=0.80,  # Slower speaking rate for calmness
+            # volume_gain_db=1.0  # Slight volume gain to ensure clarity
         )
 
         # Request speech synthesis
@@ -62,9 +62,11 @@ def text_to_guided_audio(text, relaxing_music_path='relaxing_music.wav'):
         "(PAUSE, 5 SEC)": 5000,
         "(PAUSE, 15 SEC)": 15000,
         "(PAUSE, 20 SEC)": 20000,
-        "(PAUSE, 25 SEC)": 20000,
+        "(PAUSE, 25 SEC)": 25000,
         "(PAUSE, 30 SEC)": 30000,
-        "(PAUSE, 10 SEC)": 10000
+        "(PAUSE, 10 SEC)": 10000,
+        "(PAUSE, 35 SEC)": 35000,
+        "(PAUSE, 40 SEC)": 40000,
     }
 
     fade_duration = 2000  # Duration of fade-out in milliseconds
@@ -88,10 +90,27 @@ def text_to_guided_audio(text, relaxing_music_path='relaxing_music.wav'):
         if i + 1 < len(speech_segments):
             final_audio += speech_segments[i + 1]
 
-    output_file = "guided_imagery_with_music.wav"
-    final_audio.export(output_file, format="wav")
+    # Apply 8D effect to the final audio
+    final_audio_8d = apply_8d_effect(final_audio)
+
+    output_file = "guided_imagery_with_music_8d.wav"
+    final_audio_8d.export(output_file, format="wav")
     return output_file
 
 
+def apply_8d_effect(audio_segment):
+    # Stereo widening
+    left = audio_segment.pan(-0.5)
+    right = audio_segment.pan(0.5)
 
+    # Combine channels
+    widened_audio = left.overlay(right)
 
+    # Apply reverb (using a simple echo effect here)
+    reverb_echo = Sine(440).to_audio_segment(duration=30).apply_gain(-30)  # Background reverb
+    reverb_audio = widened_audio.overlay(reverb_echo)
+
+    # Normalize the audio
+    final_audio = normalize(reverb_audio)
+
+    return final_audio
